@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Acceso Restringido - Flores Solidario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="card shadow mx-auto" style="max-width: 400px;">
+            <div class="card-body text-center">
+                <h5 class="card-title mb-4">Acceso para Voluntarios</h5>
+                
+                {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+
+                <form action="/login" method="POST">
+                    <div class="mb-3">
+                        <input type="password" name="clave" class="form-control" placeholder="Ingresá la clave compartida" required>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100 fw-bold">Desbloquear Funciones</button>
+                    <a href="/" class="btn btn-link mt-2">Volver al catálogo</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
