@@ -1,12 +1,103 @@
 <!DOCTYPE html>
 <html lang="es">
+<style>
+    body { background-color: #f4f7f9 !important; }
+
+    /* Barra de navegación */
+    .bg-dark { 
+        background-color: #094672 !important; 
+        border-bottom: 4px solid #88091a;
+    } 
+
+   /* --- ESTILO BASE PARA TODOS LOS BOTONES --- */
+    .btn-primary, .btn-danger, .btn-success, .btn-info, .btn-warning, .btn-style-mfn {
+        border-radius: 8px !important;
+        font-weight: bold !important;
+        font-size: 14px !important;       /* <--- ESTO IGUALA EL TAMAÑO */
+        text-decoration: none !important;
+        display: inline-block !important;
+        padding: 6px 12px !important;
+        vertical-align: middle !important;
+        margin: 0 !important;
+        transition: all 0.2s;
+    }
+   /* --- ESTILO EXCLUSIVO PARA EL MFN (Minimalista: Solo Texto) --- */
+    .badge.bg-info {
+        /* 1. Borramos todo rastro de "cajoncito" o botón */
+        background: none !important;            /* Fondo transparente */
+        background-color: transparent !important; 
+        border: none !important;               /* Sin bordes */
+        box-shadow: none !important;           /* SIN SOMBRAS (Acá estaba el problema) */
+        outline: none !important;              /* Sin contornos */
+        
+        /* 2. Definimos el estilo del texto */
+        color: #094672 !important;             /* Texto en Azul San Lorenzo Profundo */
+        font-weight: bold !important;          /* En negrita para que se lea bien */
+        font-size: 14px !important;            /* Mismo tamaño que los botones, pero sin cajón */
+        font-family: monospace !important;     /* (Opcional) Letra tipo "maquina de escribir" para datos técnicos, queda muy bien en MFNs */
+        
+        /* 3. Ajustes de espaciado para que no ocupe lugar extra */
+        padding: 0 4px !important;              /* Padding mínimo */
+        cursor: default !important;            /* Puntero de texto común */
+        display: inline !important;             /* Se comporta como una palabra dentro del texto */
+    }
+
+    /* EL TRUCO PARA EL BOTÓN DE BORRAR: 
+       A veces los botones tipo <button> necesitan un empujoncito hacia abajo */
+    button.btn-danger, button.btn-primary {
+        margin-top: 2px !important; 
+    }
+
+    /* --- FAMILIA ROJO TENUE (Buscar y Borrar) --- */
+    .btn-primary, .btn-danger { 
+        background-color: #fbe9eb !important; 
+        color: #88091a !important; 
+        border: 1px solid #88091a !important;
+    }
+    .btn-primary:hover, .btn-danger:hover {
+        background-color: #f8d7da !important;
+        color: #88091a !important;
+    }
+
+    /* --- FAMILIA AZUL TENUE (Agregar, Editar, Prestar, MFN) --- */
+    .btn-success, .btn-info, .btn-warning, .badge.bg-info, .btn-style-mfn {
+        background-color: #d1e3f0 !important; 
+        color: #094672 !important; 
+        border: 1px solid #094672 !important;
+    }
+    .btn-success:hover, .btn-info:hover, .btn-warning:hover {
+        background-color: #b9d8ed !important;
+        color: #094672 !important;
+    }
+
+    /* Títulos */
+    .h2, .card-title, h1 { color: #094672; font-weight: 600; }
+</style>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo - Biblioteca Cacho el Kadri</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
 </head>
 <body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Catálogo de Libros</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/socios">Gestión de Socios</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
     <div class="container mt-5">
         
         <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-white rounded shadow-sm">
@@ -39,7 +130,7 @@
         <div class="card shadow">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="card-title mb-0">Catálogo de Libros</h5>
+                    <h5 class="card-title mb-0"></h5>
                     <a href="/nuevo" class="btn btn-success">Agregar Nuevo Libro</a>
                 </div>
                 
@@ -60,7 +151,7 @@
                         <tbody>
                             {% for libro in libros %}
                             <tr>
-                                <td><span class="badge bg-info text-dark">{{ "%05d" | format(libro[7]) }}</span></td>
+                                <td><span style="color: #094672; font-weight: bold; font-size: 15px;">{{ "%05d" | format(libro[7]) }}</span></td>
                                 <td>{{ libro[0] }}</td>
                                 <td>{{ libro[1] }}</td>
                                 <td>{{ libro[2] }}</td>
@@ -71,8 +162,9 @@
                                 <td>
                                     {% if session.get('admin') %}
                                     <div class="d-flex">
-                                        <a href="/editar/{{ libro[0] }}" class="btn btn-warning btn-sm me-1">Editar</a>
-                                        <a href="/borrar/{{ libro[0] }}" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que querés borrar este libro de la biblioteca?')">Borrar</a>
+                                        <a href="/editar/{{ libro[0] }}" class="btn-style-mfn btn-sm me-2">Editar</a>
+                                        <a href="/borrar/{{ libro[0] }}" class="btn btn-danger btn-sm me-2" onclick="return confirm('¿Seguro que querés borrar este libro de la biblioteca?')">Borrar</a>
+                                        <a href="/prestar/{{ libro[0] }}" class="btn-style-mfn btn-sm me-1">Prestar</a>
                                     </div>
                                     {% endif %}
                                 </td>

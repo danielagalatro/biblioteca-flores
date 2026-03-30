@@ -9,8 +9,8 @@ app.secret_key = "secreto_flores_2026"
 def inicializar_bd():
     conexion = sqlite3.connect("biblioteca.db")
     cursor = conexion.cursor()
-    
-    # 1. Tabla de Obras (El texto, lleva el MFN)
+
+    # 1. Tabla de Obras abstractas (la que ya tenías)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Obras (
             mfn INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,23 +20,55 @@ def inicializar_bd():
             anio TEXT
         )
     ''')
-    
-    # 2. Tabla de Ejemplares (El libro físico)
+
+    # 2. Tabla de Ejemplares físicos (la que ya tenías)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Ejemplares (
             nro_inventario INTEGER PRIMARY KEY,
             mfn_vinculado INTEGER,
-            signatura_topografica TEXT NOT NULL,
+            signatura_topografica TEXT,
             observaciones TEXT,
             FOREIGN KEY (mfn_vinculado) REFERENCES Obras (mfn)
         )
     ''')
+
+    # 3. NUEVA: Tabla de Socios (Vecinos)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS Socios (
+            id_socio INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre_completo TEXT NOT NULL,
+            telefono TEXT NOT NULL
+        )
+    ''')
+
+    # 4. NUEVA: Tabla de Préstamos (El registro histórico)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS Prestamos (
+            id_prestamo INTEGER PRIMARY KEY AUTOINCREMENT,
+            id_socio INTEGER,
+            nro_inventario INTEGER,
+            fecha_prestamo DATE,
+            fecha_devolucion DATE,
+            FOREIGN KEY (id_socio) REFERENCES Socios (id_socio),
+            FOREIGN KEY (nro_inventario) REFERENCES Ejemplares (nro_inventario)
+        )
+    ''')
+
     conexion.commit()
     conexion.close()
 
 # Llamamos a la función para que cree las tablas ni bien arranca el programa
 inicializar_bd()
 
+def formatear_titulo(texto):
+    if not texto:
+        return ""
+    # Separamos el texto por los puntos y espacios (ej: "Titulo. Subtitulo")
+    partes = texto.strip().split('. ')
+    # Usamos capitalize() que solo pone en mayúscula la primerísima letra de la frase
+    partes_corregidas = [parte.capitalize() for parte in partes]
+    # Volvemos a unir todo
+    return '. '.join(partes_corregidas)
 
 @app.route('/')
 def inicio():
@@ -70,7 +102,7 @@ def nuevo_libro():
 def guardar_libro():
     # ACÁ SACAMOS LA SEGURIDAD PARA QUE TODOS PUEDAN CARGAR
     nro_inventario = request.form['nro_inventario']
-    titulo = request.form['titulo'].strip().title()
+    titulo = formatear_titulo(request.form['titulo'])
     autor = request.form['autor'].strip().title()
     editorial = request.form['editorial'].strip().title() if request.form['editorial'] else ""
     anio = request.form['anio']
@@ -183,7 +215,7 @@ def actualizar_libro(nro_inventario):
     if not session.get('admin'):
         return redirect('/')
 
-    titulo = request.form['titulo'].strip().title()
+    titulo = formatear_titulo(request.form['titulo'])
     autor = request.form['autor'].strip().title()
     editorial = request.form['editorial'].strip().title() if request.form['editorial'] else ""
     anio = request.form['anio']
@@ -215,6 +247,58 @@ def actualizar_libro(nro_inventario):
     conexion.close()
 
     return redirect('/')
+@app.route('/socios')
+def lista_socios():
+    conexion = sqlite3.connect("biblioteca.db")
+    cursor = conexion.cursor()
+    cursor.execute("SELECT id_socio, nombre_completo, telefono FROM Socios")
+    socios = cursor.fetchall()
+    conexion.close()
+    return render_template('socios.html', socios=socios)
 
+@app.route('/guardar_socio', methods=['POST'])
+def guardar_socio():
+    nombre = request.form['nombre'].strip().title() # Nombre con mayúsculas iniciales
+    telefono = request.form['telefono'].strip()
+    
+    conexion = sqlite3.connect("biblioteca.db")
+    cursor = conexion.cursor()
+    cursor.execute("INSERT INTO Socios (nombre_completo, telefono) VALUES (?, ?)", (nombre, telefono))
+    conexion.commit()
+    conexion.close()
+    return redirect('/socios')
+from datetime import date # Asegurate de que esta línea esté arriba de todo con los otros imports
+
+def formatear_titulo(texto):
+    if not texto: return ""
+    partes = texto.strip().split('. ')
+    partes_corregidas = [parte.capitalize() for parte in partes]
+    return '. '.join(partes_corregidas)
+
+@app.route('/prestar/<int:nro_inventario>')
+def formulario_prestamo(nro_inventario):
+    conexion = sqlite3.connect("biblioteca.db")
+    cursor = conexion.cursor()
+    # Traemos el libro específico
+    cursor.execute("SELECT o.titulo, e.nro_inventario FROM Ejemplares e JOIN Obras o ON e.mfn_vinculado = o.mfn WHERE e.nro_inventario = ?", (nro_inventario,))
+    libro = cursor.fetchone()
+    # Traemos los socios ordenados alfabéticamente para el buscador
+    cursor.execute("SELECT id_socio, nombre_completo FROM Socios ORDER BY nombre_completo ASC")
+    socios = cursor.fetchall()
+    conexion.close()
+    return render_template('prestar.html', libro=libro, socios=socios)
+
+@app.route('/registrar_prestamo', methods=['POST'])
+def registrar_prestamo():
+    id_socio = request.form['id_socio']
+    nro_inv = request.form['nro_inventario']
+    hoy = date.today().strftime("%d/%m/%Y") # Fecha con formato día/mes/año
+    
+    conexion = sqlite3.connect("biblioteca.db")
+    cursor = conexion.cursor()
+    cursor.execute("INSERT INTO Prestamos (id_socio, nro_inventario, fecha_prestamo) VALUES (?, ?, ?)", (id_socio, nro_inv, hoy))
+    conexion.commit()
+    conexion.close()
+    return redirect('/')
 if __name__ == '__main__':
     app.run(debug=True)
