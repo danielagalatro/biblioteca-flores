@@ -5,19 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo - Biblioteca Cacho el Kadri</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         /* 1. Fondo y Navegación (Igual a Socios) */
         body { background-color: #f4f7f9 !important; }
 
         .bg-dark { 
             background-color: #094672 !important; 
-            border-bottom: 4px solid #88091a; /* La línea roja que faltaba */
+            border-bottom: 4px solid #88091a; 
         } 
 
         /* 2. Títulos y Colores Institucionales */
         h1, h2, h5, .card-title { color: #094672 !important; font-weight: 700; }
 
-        /* 3. --- ESTILO BASE PARA TODOS LOS BOTONES (Pastillas planas sin borde) --- */
+        /* 3. ESTILO BASE PARA TODOS LOS BOTONES */
         .btn-primary, .btn-danger, .btn-success, .btn-info, .btn-warning, .btn-style-mfn, .btn-outline-secondary, .btn-outline-warning {
             border-radius: 8px !important;
             font-weight: bold !important;
@@ -27,16 +28,15 @@
             padding: 6px 12px !important;
             vertical-align: middle !important;
             margin: 0 !important;
-            border: 1px solid transparent !important; /* <--- Borde invisible para todos */
+            border: 1px solid transparent !important;
             transition: all 0.2s;
         }
 
-        /* Empujoncito para botones nativos (Borrar, Buscar) */
         button.btn-danger, button.btn-primary {
             margin-top: 2px !important; 
         }
 
-        /* --- FAMILIA ROJO TENUE (Buscar y Borrar) --- */
+        /* FAMILIA ROJO TENUE */
         .btn-primary, .btn-danger, .btn-outline-secondary { 
             background-color: #fbe9eb !important; 
             color: #88091a !important; 
@@ -46,7 +46,7 @@
             color: #88091a !important;
         }
 
-        /* --- FAMILIA AZUL TENUE (Agregar, Editar, Prestar) --- */
+        /* FAMILIA AZUL TENUE */
         .btn-success, .btn-info, .btn-warning, .btn-style-mfn, .btn-outline-warning {
             background-color: #d1e3f0 !important; 
             color: #094672 !important; 
@@ -56,13 +56,13 @@
             color: #094672 !important;
         }
 
-        /* 4. --- ESTILO EXCLUSIVO PARA EL MFN (Minimalista: Solo Texto) --- */
+        /* 4. ESTILO EXCLUSIVO PARA EL MFN */
         .badge.bg-info {
             background: none !important;            
             background-color: transparent !important; 
             border: none !important;               
             box-shadow: none !important;           
-            outline: none !important;              
+            outline: none !important;               
             color: #094672 !important;             
             font-weight: bold !important;          
             font-size: 14px !important;            
@@ -72,7 +72,6 @@
             display: inline !important;             
         }
 
-        /* Ajustes de tabla */
         table td { vertical-align: middle !important; }
     </style>
 </head>
@@ -143,7 +142,8 @@
                                 <th>Año</th>
                                 <th>Signatura</th>
                                 <th>Observaciones</th>
-                                <th>Estado</th> <th>Acciones</th> 
+                                <th>Estado</th> 
+                                <th>Acciones</th> 
                             </tr>
                         </thead>
                         <tbody>
@@ -168,14 +168,19 @@
 
                                 <td>
                                     {% if session.get('admin') %}
-                                    <div class="d-flex align-items-center">
-                                        <a href="/editar/{{ libro[0] }}" class="btn-style-mfn btn-sm me-2">Editar</a>
-                                        <a href="/borrar/{{ libro[0] }}" class="btn btn-danger btn-sm me-2" onclick="return confirm('¿Seguro que querés borrar este libro de la biblioteca?')">Borrar</a>
-                                        
+                                    <div class="d-flex align-items-center gap-2">
+                                        <a href="/editar/{{ libro[0] }}" title="Editar Libro" style="color: #094672; text-decoration: none; font-size: 1.2rem;">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </a>
+
+                                        <a href="/borrar/{{ libro[0] }}" title="Borrar Libro" style="color: #88091a; text-decoration: none; font-size: 1.2rem;" onclick="return confirm('¿Seguro que querés borrar este libro de la biblioteca?')">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </a>
+
                                         {% if libro[8] %}
-                                            <a href="/devolver/{{ libro[0] }}" class="btn btn-outline-warning btn-sm me-1" style="background-color: #fff3cd !important; color: #856404 !important; border-color: #ffeeba !important;">Devolver</a>
+                                            <a href="/devolver/{{ libro[0] }}" class="btn btn-outline-warning btn-sm" style="background-color: #fff3cd !important; color: #856404 !important; border-color: #ffeeba !important; font-size: 12px; padding: 4px 8px;">Devolver</a>
                                         {% else %}
-                                            <a href="/prestar/{{ libro[0] }}" class="btn-style-mfn btn-sm me-1">Prestar</a>
+                                            <a href="/prestar/{{ libro[0] }}" class="btn-style-mfn btn-sm" style="font-size: 12px; padding: 4px 8px;">Prestar</a>
                                         {% endif %}
                                     </div>
                                     {% endif %}
@@ -189,22 +194,23 @@
                         </tbody>
                     </table>
                 </div>
+
                 {% if not busqueda %}
-        <div class="d-flex justify-content-between align-items-center mt-3 mb-5">
-            <div>
-                <span class="text-muted small">Página <strong>{{ pagina }}</strong></span>
-            </div>
-            <div class="btn-group">
-                {% if pagina > 1 %}
-                    <a href="/?pagina={{ pagina - 1 }}" class="btn btn-outline-primary btn-sm" style="border-radius: 8px 0 0 8px !important; background-color: #f4f7f9; color: #094672; border-color: #d1e3f0;">&laquo; Anterior</a>
+                <div class="d-flex justify-content-between align-items-center mt-3 mb-5">
+                    <div>
+                        <span class="text-muted small">Página <strong>{{ pagina }}</strong></span>
+                    </div>
+                    <div class="btn-group">
+                        {% if pagina > 1 %}
+                            <a href="/?pagina={{ pagina - 1 }}" class="btn btn-outline-primary btn-sm" style="border-radius: 8px 0 0 8px !important; background-color: #f4f7f9; color: #094672; border-color: #d1e3f0;">&laquo; Anterior</a>
+                        {% endif %}
+                        
+                        {% if tiene_siguiente %}
+                            <a href="/?pagina={{ pagina + 1 }}" class="btn btn-outline-primary btn-sm" style="border-radius: 0 8px 8px 0 !important; background-color: #f4f7f9; color: #094672; border-color: #d1e3f0;">Siguiente &raquo;</a>
+                        {% endif %}
+                    </div>
+                </div>
                 {% endif %}
-                
-                {% if tiene_siguiente %}
-                    <a href="/?pagina={{ pagina + 1 }}" class="btn btn-outline-primary btn-sm" style="border-radius: 0 8px 8px 0 !important; background-color: #f4f7f9; color: #094672; border-color: #d1e3f0;">Siguiente &raquo;</a>
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
             </div>
         </div>
     </div>

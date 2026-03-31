@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Libro - Biblioteca Cacho el Kadri</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         /* 1. Fondo general tenue */
         body { background-color: #f4f7f9 !important; }
@@ -42,6 +43,18 @@
             color: #88091a !important;
         }
 
+        /* Botón Historial (Estilo especial con borde azul) */
+        .btn-historial {
+            background-color: white !important;
+            color: #094672 !important;
+            border: 1px solid #094672 !important;
+            border-radius: 20px !important; /* Más redondito para que se diferencie */
+            font-size: 14px !important;
+        }
+        .btn-historial:hover {
+            background-color: #f4f7f9 !important;
+        }
+
         /* 4. Suavizar la tarjeta y los inputs */
         .card {
             border: none !important;
@@ -75,6 +88,12 @@
             </div>
             
             <div class="card-body p-4">
+                
+                <div class="text-end mb-4">
+                    <a href="/historial_libro/{{ libro[0] }}" class="btn btn-historial shadow-sm px-3 py-2">
+                        <i class="bi bi-clock-history me-1"></i> Ver historial de préstamos
+                    </a>
+                </div>
                 
                 <form action="/actualizar/{{ libro[0] }}" method="POST">
                     

@@ -346,5 +346,81 @@ def devolver_libro(nro_inventario):
     
     # Volvemos a recargar la pantalla principal
     return redirect('/')
+@app.route('/editar_socio/<int:id_socio>')
+def vista_editar_socio(id_socio):
+    conexion = sqlite3.connect("biblioteca.db")
+    cursor = conexion.cursor()
+    cursor.execute("SELECT id_socio, nombre_completo, telefono FROM Socios WHERE id_socio = ?", (id_socio,))
+    socio = cursor.fetchone()
+    conexion.close()
+    return render_template('editar_socio.html', socio=socio)
+
+@app.route('/actualizar_socio', methods=['POST'])
+def actualizar_socio():
+    id_s = request.form['id_socio']
+    nom = request.form['nombre']
+    tel = request.form['telefono']
+    
+    conexion = sqlite3.connect("biblioteca.db")
+    cursor = conexion.cursor()
+    cursor.execute("UPDATE Socios SET nombre_completo = ?, telefono = ? WHERE id_socio = ?", (nom, tel, id_s))
+    conexion.commit()
+    conexion.close()
+    return redirect('/socios') # Nos manda de vuelta a la lista de socios
+
+@app.route('/historial_socio/<int:id_socio>')
+def historial_socio(id_socio):
+    conexion = sqlite3.connect("biblioteca.db")
+    cursor = conexion.cursor()
+    
+    # 1. Buscamos los datos del socio para el título
+    cursor.execute("SELECT nombre_completo FROM Socios WHERE id_socio = ?", (id_socio,))
+    nombre_socio = cursor.fetchone()[0]
+    
+    # 2. Buscamos su historial (Libros prestados y devueltos)
+    # Unimos Prestamos con Obras para tener el título y autor
+    cursor.execute('''
+        SELECT o.titulo, o.autor, p.fecha_prestamo, p.fecha_devolucion, p.nro_inventario
+        FROM Prestamos p
+        JOIN Ejemplares e ON p.nro_inventario = e.nro_inventario
+        JOIN Obras o ON e.mfn_vinculado = o.mfn
+        WHERE p.id_socio = ?
+        ORDER BY p.fecha_prestamo DESC
+    ''', (id_socio,))
+    
+    historial = cursor.fetchall()
+    conexion.close()
+    
+    return render_template('historial_socio.html', 
+                           nombre=nombre_socio, 
+                           historial=historial, 
+                           id_s=id_socio)
+
+@app.route('/historial_libro/<int:nro_inv>')
+def historial_libro(nro_inv):
+    conexion = sqlite3.connect("biblioteca.db")
+    cursor = conexion.cursor()
+    
+    # Buscamos el título del libro para el encabezado
+    cursor.execute('''
+        SELECT o.titulo FROM Obras o 
+        JOIN Ejemplares e ON o.mfn = e.mfn_vinculado 
+        WHERE e.nro_inventario = ?
+    ''', (nro_inv,))
+    titulo = cursor.fetchone()[0]
+
+    # Buscamos quiénes lo tuvieron
+    cursor.execute('''
+        SELECT s.nombre_completo, p.fecha_prestamo, p.fecha_devolucion
+        FROM Prestamos p
+        JOIN Socios s ON p.id_socio = s.id_socio
+        WHERE p.nro_inventario = ?
+        ORDER BY p.fecha_prestamo DESC
+    ''', (nro_inv,))
+    
+    historial = cursor.fetchall()
+    conexion.close()
+    return render_template('historial_libro.html', titulo=titulo, historial=historial, nro_inv=nro_inv)
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Socios - Biblioteca Cacho El Kadri</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         /* 1. Fondo y Navegación */
         body { background-color: #f4f7f9 !important; }
@@ -15,20 +16,19 @@
         /* 2. Títulos y Colores Institucionales */
         h1, h2, h5, .card-title { color: #094672 !important; font-weight: 700; }
 
-        /* 3. --- ESTILO UNIFICADO DE BOTONES (Pastillas Planas) --- */
+        /* 3. ESTILO UNIFICADO DE BOTONES */
         .btn {
             border-radius: 8px !important;
             font-weight: bold !important;
             font-size: 14px !important;
             text-decoration: none !important;
-            border: 1px solid transparent !important; /* Sin bordes oscuros */
+            border: 1px solid transparent !important;
             transition: all 0.2s;
             display: inline-block !important;
             padding: 6px 12px !important;
             vertical-align: middle !important;
         }
 
-        /* Botón Registrar Socio (Azul Tenue como el MFN) */
         .btn-info { 
             background-color: #d1e3f0 !important; 
             color: #094672 !important; 
@@ -38,7 +38,7 @@
             color: #094672 !important;
         }
 
-        /* 4. Estilo para el ID del Socio (Igual que el MFN) */
+        /* 4. Estilo para el ID del Socio */
         .id-socio-text {
             color: #094672; 
             font-weight: bold; 
@@ -49,6 +49,18 @@
         /* Ajustes de la tabla */
         .table-dark { background-color: #094672 !important; }
         table td { vertical-align: middle !important; }
+        
+        /* Estilo para los iconos de acción (sin fondo) */
+        .accion-icon {
+            color: #094672;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: 0.2s;
+        }
+        .accion-icon:hover {
+            color: #07365a;
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -97,35 +109,44 @@
             </div>
 
             <div class="col-md-8">
-                <div class="card shadow-sm border-0" style="border-radius: 12px;">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Listado de Socios</h5>
-                        <table class="table table-striped">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>ID Socio</th>
-                                    <th>Nombre</th>
-                                    <th>Teléfono</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for socio in socios %}
-                                <tr>
-                                    <td>
-                                        <span class="id-socio-text">
-                                            {{ "%04d" | format(socio[0]) }}
-                                        </span>
-                                    </td>
-                                    <td style="font-weight: 500;">{{ socio[1] }}</td>
-                                    <td>{{ socio[2] }}</td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                    <td colspan="3" class="text-center text-muted">No hay socios registrados.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                    <div class="card-body p-4">
+                        <h4 class="mb-4" style="color: #094672; font-weight: bold;">Listado de Socios</h4>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-dark" style="background-color: #094672 !important;">
+                                    <tr>
+                                        <th class="text-center">ID Socio</th>
+                                        <th>Nombre</th>
+                                        <th>Teléfono</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for socio in socios %}
+                                    <tr>
+                                        <td class="text-center">
+                                            <span class="id-socio-text">
+                                                {{ "%04d" | format(socio[0]) }}
+                                            </span>
+                                        </td>
+                                        <td>{{ socio[1] }}</td>
+                                        <td>{{ socio[2] }}</td>
+                                        <td class="text-center">
+                                            <div class="d-flex justify-content-center align-items-center gap-3">
+                                                <a href="/editar_socio/{{ socio[0] }}" class="accion-icon" title="Editar datos">
+                                                    <i class="bi bi-pencil-fill"></i>
+                                                </a>
+                                                <a href="/historial_socio/{{ socio[0] }}" class="accion-icon" title="Ver historial">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
