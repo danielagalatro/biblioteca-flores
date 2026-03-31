@@ -3,34 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuevo Libro - Flores Solidario</title>
+    <title>Nuevo Libro - Biblioteca Cacho el Kadri</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* 1. Fondo general tenue */
+        body { background-color: #f4f7f9 !important; }
+
+        /* 2. Títulos y Colores Institucionales */
+        h1, h2, h5, .card-title { color: #094672 !important; font-weight: 700; }
+
+        /* 3. --- ESTILO UNIFICADO DE BOTONES (Pastillas Planas) --- */
+        .btn {
+            border-radius: 8px !important;
+            font-weight: bold !important;
+            font-size: 15px !important;       
+            text-decoration: none !important;
+            border: 1px solid transparent !important; /* Sin bordes oscuros */
+            transition: all 0.2s;
+        }
+
+        /* Botón Guardar Libro (Azul Tenue) */
+        .btn-primary {
+            background-color: #d1e3f0 !important; 
+            color: #094672 !important; 
+        }
+        .btn-primary:hover {
+            background-color: #b9d8ed !important;
+            color: #094672 !important;
+        }
+
+        /* Botón Cancelar (Rojo Tenue) */
+        .btn-outline-secondary { 
+            background-color: #fbe9eb !important; 
+            color: #88091a !important; 
+        }
+        .btn-outline-secondary:hover {
+            background-color: #f8d7da !important;
+            color: #88091a !important;
+        }
+
+        /* 4. Suavizar la tarjeta y los inputs */
+        .card {
+            border: none !important;
+            border-radius: 12px !important;
+            overflow: hidden;
+        }
+        .form-control {
+            border-radius: 8px !important;
+            border: 1px solid #d1e3f0; /* Borde suave en los campos de texto */
+        }
+        .form-control:focus {
+            border-color: #094672;
+            box-shadow: 0 0 0 0.25rem rgba(9, 70, 114, 0.25);
+        }
+        .form-label { color: #094672 !important; } /* Etiquetas en azul oscuro */
+        
+        /* Estilo para las alertas de error */
+        .alert-danger {
+            background-color: #fbe9eb !important;
+            color: #88091a !important;
+            border: 1px solid #88091a !important;
+            border-radius: 8px !important;
+        }
+    </style>
 </head>
 <body class="bg-light">
     <div class="container mt-5">
         
-        <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-white rounded shadow-sm">
+        <div class="d-flex justify-content-center align-items-center mb-4 p-3 bg-white rounded shadow-sm border-0" style="border-radius: 12px !important;">
             <div class="d-flex align-items-center">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Flores Solidario" class="me-3" style="height: 60px; width: auto;">
-                <h1 class="h2 m-0" style="color: #2c3e50; font-weight: 700;">Biblioteca Cacho el Kadri</h1>
-            </div>
-            
-            <div>
-                {% if session.get('admin') %}
-                    <span class="badge bg-warning text-dark me-2">Modo Edición Activado</span>
-                    <a href="/logout" class="btn btn-outline-secondary btn-sm">Cerrar Sesión</a>
-                {% else %}
-                    <a href="/login" class="btn btn-outline-warning btn-sm">Desbloquear Edición</a>
-                {% endif %}
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Flores Solidario" class="me-3" style="height: 90px; width: auto;">
+                <h1 class="h2 m-0">Biblioteca Cacho El Kadri</h1>
             </div>
         </div>
 
         <div class="card shadow mx-auto" style="max-width: 650px;">
-            <div class="card-body">
-                <h2 class="card-title h4 mb-4 text-center">Ingresar Nuevo Libro</h2>
+            <div class="card-header text-white text-center" style="background-color: #094672; border-bottom: 4px solid #88091a;">
+                <h4 class="mb-0 font-weight-bold">Ingresar Nuevo Libro</h4>
+            </div>
+            
+            <div class="card-body p-4">
                 
                 {% if error %}
-                <div class="alert alert-danger fw-bold" role="alert">
+                <div class="alert alert-danger fw-bold text-center mb-4" role="alert">
                     {{ error }}
                 </div>
                 {% endif %}
@@ -38,44 +93,44 @@
                 <form action="/guardar" method="POST">
                     
                     <div class="mb-3">
-                        <label class="form-label text-muted fw-bold">Nro. Inventario *</label>
+                        <label class="form-label fw-bold">Nro. Inventario *</label>
                         <input type="number" name="nro_inventario" class="form-control" required>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label text-muted fw-bold">Título *</label>
+                        <label class="form-label fw-bold">Título *</label>
                         <input type="text" name="titulo" class="form-control" required>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label text-muted fw-bold">Autor *</label>
+                        <label class="form-label fw-bold">Autor *</label>
                         <input type="text" name="autor" class="form-control" required>
                     </div>
                     
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted fw-bold">Editorial</label>
+                            <label class="form-label fw-bold">Editorial</label>
                             <input type="text" name="editorial" class="form-control">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted fw-bold">Año</label>
+                            <label class="form-label fw-bold">Año</label>
                             <input type="number" name="anio" class="form-control">
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label text-muted fw-bold">Signatura Topográfica *</label>
+                        <label class="form-label fw-bold">Signatura Topográfica *</label>
                         <input type="text" name="signatura" class="form-control" required>
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label text-muted fw-bold">Observaciones</label>
+                        <label class="form-label fw-bold">Observaciones</label>
                         <textarea name="observaciones" class="form-control" rows="2"></textarea>
                     </div>
 
-                    <div class="d-flex justify-content-between">
-                        <a href="/" class="btn btn-outline-secondary px-4">Cancelar</a>
-                        <button type="submit" class="btn btn-primary px-4">Guardar Libro</button>
+                    <div class="d-grid gap-2 mt-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Guardar Libro</button>
+                        <a href="/" class="btn btn-outline-secondary btn-lg text-center">Cancelar</a>
                     </div>
                 </form>
             </div>

@@ -1,29 +1,55 @@
 <!DOCTYPE html>
 <html lang="es">
-<style>
-    /* El Azul de la barra de arriba */
-    .bg-dark { background-color: #002d5a !important; } 
-    
-    /* El Rojo para botones principales */
-    .btn-primary, .btn-danger { 
-        background-color: #c0142c !important; 
-        border-color: #a01226 !important; 
-    }
-    
-    /* El Celeste/Info para los MFN (que combina con el azul) */
-    .bg-info { background-color: #00aae4 !important; color: white !important; }
-
-    /* Ajuste para que el texto de la barra se vea bien */
-    .navbar-dark .nav-link { color: rgba(255,255,255,.8) !important; }
-    .navbar-dark .nav-link.active { color: #fff !important; font-weight: bold; }
-
-    /* Color de los títulos */
-    h1, h2, .card-title { color: #002d5a; }
-</style>
 <head>
     <meta charset="UTF-8">
     <title>Socios - Biblioteca Cacho El Kadri</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* 1. Fondo y Navegación */
+        body { background-color: #f4f7f9 !important; }
+        .bg-dark { 
+            background-color: #094672 !important; 
+            border-bottom: 4px solid #88091a; 
+        } 
+        
+        /* 2. Títulos y Colores Institucionales */
+        h1, h2, h5, .card-title { color: #094672 !important; font-weight: 700; }
+
+        /* 3. --- ESTILO UNIFICADO DE BOTONES (Pastillas Planas) --- */
+        .btn {
+            border-radius: 8px !important;
+            font-weight: bold !important;
+            font-size: 14px !important;
+            text-decoration: none !important;
+            border: 1px solid transparent !important; /* Sin bordes oscuros */
+            transition: all 0.2s;
+            display: inline-block !important;
+            padding: 6px 12px !important;
+            vertical-align: middle !important;
+        }
+
+        /* Botón Registrar Socio (Azul Tenue como el MFN) */
+        .btn-info { 
+            background-color: #d1e3f0 !important; 
+            color: #094672 !important; 
+        }
+        .btn-info:hover {
+            background-color: #b9d8ed !important;
+            color: #094672 !important;
+        }
+
+        /* 4. Estilo para el ID del Socio (Igual que el MFN) */
+        .id-socio-text {
+            color: #094672; 
+            font-weight: bold; 
+            font-family: monospace; 
+            font-size: 15px;
+        }
+
+        /* Ajustes de la tabla */
+        .table-dark { background-color: #094672 !important; }
+        table td { vertical-align: middle !important; }
+    </style>
 </head>
 <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -43,26 +69,26 @@
             </div>
         </div>
     </nav>
+
     <div class="container mt-5">
         <div class="d-flex align-items-center mb-4 p-3 bg-white rounded shadow-sm">
             <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="me-3" style="height: 60px; width: auto;">
-            <h1 class="h2 m-0" style="color: #2c3e50; font-weight: 700;">Biblioteca Cacho El Kadri</h1>
+            <h1 class="h2 m-0">Biblioteca Cacho El Kadri</h1>
         </div>
 
-    <div class="container mt-4">
         <div class="row">
             <div class="col-md-4">
-                <div class="card shadow-sm">
+                <div class="card shadow-sm border-0" style="border-radius: 12px;">
                     <div class="card-body">
-                        <h5 class="card-title">Registrar Nuevo Socio</h5>
+                        <h5 class="card-title mb-4">Registrar Nuevo Socio</h5>
                         <form action="/guardar_socio" method="POST">
                             <div class="mb-3">
-                                <label class="form-label">Nombre Completo</label>
-                                <input type="text" name="nombre" class="form-control" required>
+                                <label class="form-label" style="color: #094672; font-weight: 600;">Nombre Completo</label>
+                                <input type="text" name="nombre" class="form-control" required style="border-radius: 8px;">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Teléfono</label>
-                                <input type="text" name="telefono" class="form-control" required>
+                                <label class="form-label" style="color: #094672; font-weight: 600;">Teléfono</label>
+                                <input type="text" name="telefono" class="form-control" required style="border-radius: 8px;">
                             </div>
                             <button type="submit" class="btn btn-info w-100">Registrar Socio</button>
                         </form>
@@ -71,10 +97,10 @@
             </div>
 
             <div class="col-md-8">
-                <div class="card shadow-sm">
+                <div class="card shadow-sm border-0" style="border-radius: 12px;">
                     <div class="card-body">
-                        <h5 class="card-title">Listado de Socios</h5>
-                        <table class="table table-striped mt-3">
+                        <h5 class="card-title mb-3">Listado de Socios</h5>
+                        <table class="table table-striped">
                             <thead class="table-dark">
                                 <tr>
                                     <th>ID Socio</th>
@@ -85,13 +111,17 @@
                             <tbody>
                                 {% for socio in socios %}
                                 <tr>
-                                    <td><span class="badge bg-info text-dark">{{ "%04d" | format(socio[0]) }}</span></td>
-                                    <td>{{ socio[1] }}</td>
+                                    <td>
+                                        <span class="id-socio-text">
+                                            {{ "%04d" | format(socio[0]) }}
+                                        </span>
+                                    </td>
+                                    <td style="font-weight: 500;">{{ socio[1] }}</td>
                                     <td>{{ socio[2] }}</td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="3" class="text-center">No hay socios registrados.</td>
+                                    <td colspan="3" class="text-center text-muted">No hay socios registrados.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -101,5 +131,6 @@
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

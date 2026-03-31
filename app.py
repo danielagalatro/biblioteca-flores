@@ -72,28 +72,46 @@ def formatear_titulo(texto):
 
 @app.route('/')
 def inicio():
+    # 1. Detectamos en qué página estamos (por defecto la 1)
+    pagina = request.args.get('pagina', 1, type=int)
+    libros_por_pagina = 10
+    offset = (pagina - 1) * libros_por_pagina
+    
     busqueda = request.args.get('q')
     conexion = sqlite3.connect("biblioteca.db")
     cursor = conexion.cursor()
     
-    # ACÁ ESTÁ EL CAMBIO: Agregamos o.mfn al final para que lo envíe al HTML
+    # Consulta base con el "Radar" de préstamos
     consulta_base = '''
-        SELECT e.nro_inventario, o.titulo, o.autor, o.editorial, o.anio, e.signatura_topografica, e.observaciones, o.mfn 
+        SELECT e.nro_inventario, o.titulo, o.autor, o.editorial, o.anio, e.signatura_topografica, e.observaciones, o.mfn,
+               (SELECT id_prestamo FROM Prestamos p WHERE p.nro_inventario = e.nro_inventario AND p.fecha_devolucion IS NULL LIMIT 1) as estado_prestamo
         FROM Ejemplares e
         JOIN Obras o ON e.mfn_vinculado = o.mfn
     '''
     
     if busqueda:
         termino = f"%{busqueda}%"
-        consulta_base += " WHERE o.titulo LIKE ? OR o.autor LIKE ?"
-        cursor.execute(consulta_base, (termino, termino))
+        # Si hay búsqueda, mostramos todo lo que coincida (sin paginar para no complicar el filtro ahora)
+        cursor.execute(consulta_base + " WHERE o.titulo LIKE ? OR o.autor LIKE ?", (termino, termino))
     else:
-        cursor.execute(consulta_base)
+        # Si no hay búsqueda, limitamos a 10 resultados empezando desde el offset
+        cursor.execute(consulta_base + " LIMIT ? OFFSET ?", (libros_por_pagina, offset))
         
-    lista_libros = cursor.fetchall() 
+    lista_libros = cursor.fetchall()
+
+    # Contamos el total para saber si hay una página siguiente
+    cursor.execute("SELECT COUNT(*) FROM Ejemplares")
+    total_libros = cursor.fetchone()[0]
+    tiene_siguiente = total_libros > (pagina * libros_por_pagina)
+    
     conexion.close()
     
-    return render_template('index.html', libros=lista_libros, busqueda=busqueda)
+    return render_template('index.html', 
+                           libros=lista_libros, 
+                           busqueda=busqueda, 
+                           pagina=pagina, 
+                           tiene_siguiente=tiene_siguiente)
+
 @app.route('/nuevo')
 def nuevo_libro():
     return render_template('nuevo_libro.html')
@@ -275,6 +293,7 @@ def formatear_titulo(texto):
     partes_corregidas = [parte.capitalize() for parte in partes]
     return '. '.join(partes_corregidas)
 
+
 @app.route('/prestar/<int:nro_inventario>')
 def formulario_prestamo(nro_inventario):
     conexion = sqlite3.connect("biblioteca.db")
@@ -299,6 +318,33 @@ def registrar_prestamo():
     cursor.execute("INSERT INTO Prestamos (id_socio, nro_inventario, fecha_prestamo) VALUES (?, ?, ?)", (id_socio, nro_inv, hoy))
     conexion.commit()
     conexion.close()
+    return redirect('/')
+
+@app.route('/devolver/<int:nro_inventario>')
+def devolver_libro(nro_inventario):
+    # Por seguridad, solo el admin puede procesar devoluciones
+    if not session.get('admin'):
+        return redirect('/')
+
+    conexion = sqlite3.connect("biblioteca.db")
+    cursor = conexion.cursor()
+    
+    # 1. Buscamos el registro del préstamo que todavía está "abierto" (sin fecha de devolución)
+    cursor.execute("SELECT id_prestamo FROM Prestamos WHERE nro_inventario = ? AND fecha_devolucion IS NULL LIMIT 1", (nro_inventario,))
+    prestamo_abierto = cursor.fetchone()
+    
+    if prestamo_abierto:
+        id_del_prestamo = prestamo_abierto[0]
+        # 2. Conseguimos la fecha de hoy con formato argentino
+        hoy_devolucion = date.today().strftime("%d/%m/%Y")
+        
+        # 3. Actualizamos la ficha del préstamo poniéndole la fecha de devolución
+        cursor.execute("UPDATE Prestamos SET fecha_devolucion = ? WHERE id_prestamo = ?", (hoy_devolucion, id_del_prestamo))
+        conexion.commit()
+        
+    conexion.close()
+    
+    # Volvemos a recargar la pantalla principal
     return redirect('/')
 if __name__ == '__main__':
     app.run(debug=True)
