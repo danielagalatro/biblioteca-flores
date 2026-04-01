@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca Cacho el Kadri</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        /* 1. Fondo y Navegación */
+        body { background-color: #f4f7f9 !important; }
+
+        .bg-dark { 
+            background-color: #094672 !important; 
+            border-bottom: 4px solid #88091a; 
+        } 
+
+        /* 2. Títulos y Colores Institucionales */
+        h1, h2, h5, .card-title { color: #094672 !important; font-weight: 700; }
+
+        /* 3. ESTILO BASE PARA TODOS LOS BOTONES */
+        .btn-primary, .btn-danger, .btn-success, .btn-info, .btn-warning, .btn-style-mfn, .btn-outline-secondary, .btn-outline-warning {
+            border-radius: 8px !important;
+            font-weight: bold !important;
+            font-size: 14px !important;       
+            text-decoration: none !important;
+            display: inline-block !important;
+            padding: 6px 12px !important;
+            vertical-align: middle !important;
+            margin: 0 !important;
+            border: 1px solid transparent !important;
+            transition: all 0.2s;
+        }
+
+        button.btn-danger, button.btn-primary {
+            margin-top: 2px !important; 
+        }
+
+        /* FAMILIA ROJO TENUE */
+        .btn-primary, .btn-danger, .btn-outline-secondary { 
+            background-color: #fbe9eb !important; 
+            color: #88091a !important; 
+        }
+        .btn-primary:hover, .btn-danger:hover, .btn-outline-secondary:hover {
+            background-color: #f8d7da !important;
+            color: #88091a !important;
+        }
+
+        /* FAMILIA AZUL TENUE */
+        .btn-success, .btn-info, .btn-warning, .btn-style-mfn, .btn-outline-warning {
+            background-color: #d1e3f0 !important; 
+            color: #094672 !important; 
+        }
+        .btn-success:hover, .btn-info:hover, .btn-warning:hover, .btn-style-mfn:hover, .btn-outline-warning:hover {
+            background-color: #b9d8ed !important;
+            color: #094672 !important;
+        }
+
+        /* 4. ESTILO EXCLUSIVO PARA EL MFN */
+        .badge.bg-info {
+            background: none !important;            
+            background-color: transparent !important; 
+            border: none !important;               
+            box-shadow: none !important;           
+            outline: none !important;               
+            color: #094672 !important;             
+            font-weight: bold !important;          
+            font-size: 14px !important;            
+            font-family: monospace !important;     
+            padding: 0 4px !important;              
+            cursor: default !important;            
+            display: inline !important;             
+        }
+
+        table td { vertical-align: middle !important; }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Catálogo de Libros</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/socios">Gestión de Socios</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-5">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4 py-1 px-3 bg-white rounded shadow-sm border-0" style="border-radius: 12px !important;">
+            <div class="d-flex align-items-center">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Flores Solidario" class="me-3 mt-n2 mb-n2" style="height: 110px; width: auto; object-fit: contain;">
+                <h1 class="h2 m-0">Biblioteca Cacho el Kadri</h1>
+            </div>
+         {% block header_admin_zone %}
+                <div>
+                    {% if session.get('admin') %}
+                        <span class="me-3" style="color: #094672; font-weight: bold; font-size: 14px;">Modo Edición Activado</span>
+                        <a href="/logout" class="btn btn-outline-secondary btn-sm">Cerrar Sesión</a>
+                    {% else %}
+                        <a href="/login" class="btn btn-outline-warning btn-sm">Desbloquear Edición</a>
+                    {% endif %}
+                </div>
+            {% endblock header_admin_zone %}
+        </div>
+
+        {% block content %}{% endblock %}
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
