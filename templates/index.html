@@ -2,21 +2,40 @@
 
 {% block content %}
 <form action="/" method="GET" class="mb-4">
-    <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
-        <input type="text" name="q" class="form-control form-control-lg" placeholder="Buscar libro por título o autor..." value="{{ busqueda if busqueda else '' }}" style="border: 1px solid #094672;">
-        <button class="btn btn-primary px-4" type="submit">Buscar</button>
+    <div class="row g-2 align-items-center">
         
-        {% if busqueda %}
-        <a href="/" class="btn btn-outline-secondary px-4">Limpiar Filtro</a>
-        {% endif %}
+        <div class="col-12 {% if busqueda %}col-md-7 col-lg-8{% else %}col-md-9 col-lg-10{% endif %}">
+            <div class="input-group">
+                <span class="input-group-text bg-white" style="border: 1px solid #094672; border-right: none;">
+                    <i class="bi bi-search" style="color: #094672;"></i>
+                </span>
+                <input type="text" name="q" class="form-control form-control-lg" placeholder="Buscar libro por título o autor..." value="{{ busqueda if busqueda else '' }}" style="border: 1px solid #094672; border-left: none; border-radius: 0 8px 8px 0;">
+            </div>
+        </div>
+        
+        <div class="col-12 {% if busqueda %}col-md-5 col-lg-4 d-flex gap-2{% else %}col-md-3 col-lg-2 d-grid{% endif %}">
+            <button type="submit" class="btn btn-info btn-lg {% if busqueda %}flex-grow-1{% endif %}" style="font-weight: bold; border-radius: 8px;">
+                Buscar
+            </button>
+            
+            {% if busqueda %}
+            <a href="/" class="btn btn-primary btn-lg flex-grow-1" style="font-weight: bold; border-radius: 8px;" title="Quitar filtro">
+                <i class="bi bi-x-lg me-1"></i> Limpiar
+            </a>
+            {% endif %}
+        </div>
+
     </div>
 </form>
 
 <div class="card shadow-sm border-0" style="border-radius: 12px;">
     <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 gap-2">
             <h5 class="card-title mb-0">Catálogo Principal</h5>
-            <a href="/nuevo" class="btn btn-success">Agregar Nuevo Libro</a>
+            <a href="/nuevo" class="btn btn-success">
+                <i class="bi bi-plus-circle me-1"></i> Agregar Nuevo Libro
+            </a>
         </div>
         
         <div class="table-responsive">
@@ -31,7 +50,7 @@
                         <th>Año</th>
                         <th>Signatura</th>
                         <th>Observaciones</th>
-                        <th>Estado</th> 
+                        <th class="text-center">Estado</th> 
                         <th>Acciones</th> 
                     </tr>
                 </thead>
@@ -40,7 +59,7 @@
                     <tr>
                         <td><span style="color: #094672; font-weight: bold; font-family: monospace; font-size: 15px;">{{ "%05d" | format(libro[7]) }}</span></td>
                         <td>{{ libro[0] }}</td>
-                        <td>{{ libro[1] }}</td>
+                        <td class="fw-bold">{{ libro[1] }}</td>
                         <td>{{ libro[2] }}</td>
                         <td>{{ libro[3] }}</td> 
                         <td>{{ libro[4] }}</td> 
@@ -77,7 +96,10 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="10" class="text-center text-muted py-4">No hay libros cargados todavía.</td>
+                        <td colspan="10" class="text-center text-muted py-5">
+                            <i class="bi bi-journal-x fs-2 d-block mb-2 opacity-50"></i>
+                            No hay libros cargados todavía.
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -85,7 +107,7 @@
         </div>
 
         {% if not busqueda %}
-        <div class="d-flex justify-content-between align-items-center mt-3 mb-5">
+        <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
             <div>
                 <span class="text-muted small">Página <strong>{{ pagina }}</strong></span>
             </div>
@@ -100,6 +122,7 @@
             </div>
         </div>
         {% endif %}
+        
     </div>
 </div>
 {% endblock %}

@@ -96,21 +96,34 @@
     
     <div class="container mt-5">
         
-        <div class="d-flex justify-content-between align-items-center mb-4 py-1 px-3 bg-white rounded shadow-sm border-0" style="border-radius: 12px !important;">
-            <div class="d-flex align-items-center">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Flores Solidario" class="me-3 mt-n2 mb-n2" style="height: 110px; width: auto; object-fit: contain;">
-                <h1 class="h2 m-0">Biblioteca Cacho el Kadri</h1>
-            </div>
-         {% block header_admin_zone %}
-                <div>
+        <div class="mb-4 py-3 px-3 bg-white rounded shadow-sm border-0" style="border-radius: 12px !important;">
+            <div class="row align-items-center text-center text-md-start">
+                
+                <div class="col-12 col-md d-flex flex-column flex-md-row align-items-center mb-3 mb-md-0">
+                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Flores Solidario" class="me-md-3 mb-2 mb-md-0" style="height: 90px; width: auto; object-fit: contain;">
+                    <h1 class="h2 m-0">Biblioteca Cacho el Kadri</h1>
+                </div>
+                
+                {% block header_admin_zone %}
+                <div class="col-12 col-md-auto text-center text-md-end">
                     {% if session.get('admin') %}
-                        <span class="me-3" style="color: #094672; font-weight: bold; font-size: 14px;">Modo Edición Activado</span>
-                        <a href="/logout" class="btn btn-outline-secondary btn-sm">Cerrar Sesión</a>
+                        <div class="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-end">
+                            <span class="mb-2 mb-md-0 me-md-3" style="color: #094672; font-weight: bold; font-size: 14px;">
+                                <i class="bi bi-person-check-fill me-1"></i> Modo Edición Activado
+                            </span>
+                            <a href="/logout" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
+                            </a>
+                        </div>
                     {% else %}
-                        <a href="/login" class="btn btn-outline-warning btn-sm">Desbloquear Edición</a>
+                        <a href="/login" class="btn btn-outline-warning btn-sm">
+                            <i class="bi bi-unlock-fill me-1"></i> Desbloquear Edición
+                        </a>
                     {% endif %}
                 </div>
-            {% endblock header_admin_zone %}
+                {% endblock header_admin_zone %}
+
+            </div>
         </div>
 
         {% block content %}{% endblock %}

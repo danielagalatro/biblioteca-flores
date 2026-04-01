@@ -423,4 +423,5 @@ def historial_libro(nro_inv):
     return render_template('historial_libro.html', titulo=titulo, historial=historial, nro_inv=nro_inv)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # El host '0.0.0.0' le dice a Flask que escuche a cualquier dispositivo de tu red
+    app.run(host='0.0.0.0', port=5000, debug=True)
