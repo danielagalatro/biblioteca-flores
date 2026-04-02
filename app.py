@@ -1,16 +1,19 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, Response
 import sqlite3
+import openpyxl
+from io import BytesIO
+from datetime import date
 
 app = Flask(__name__)
 # Esta "llave secreta" es obligatoria para que Flask pueda poner la pulserita VIP (session)
 app.secret_key = "secreto_flores_2026" 
 
-# --- NUEVO: CREACIÓN DE LAS DOS TABLAS ---
+# --- CREACIÓN DE LAS TABLAS ---
 def inicializar_bd():
     conexion = sqlite3.connect("biblioteca.db")
     cursor = conexion.cursor()
 
-    # 1. Tabla de Obras abstractas (la que ya tenías)
+    # 1. Tabla de Obras abstractas
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Obras (
             mfn INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,7 +24,7 @@ def inicializar_bd():
         )
     ''')
 
-    # 2. Tabla de Ejemplares físicos (la que ya tenías)
+    # 2. Tabla de Ejemplares físicos
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Ejemplares (
             nro_inventario INTEGER PRIMARY KEY,
@@ -32,7 +35,7 @@ def inicializar_bd():
         )
     ''')
 
-    # 3. NUEVA: Tabla de Socios (Vecinos)
+    # 3. Tabla de Socios (Vecinos)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Socios (
             id_socio INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,7 +44,7 @@ def inicializar_bd():
         )
     ''')
 
-    # 4. NUEVA: Tabla de Préstamos (El registro histórico)
+    # 4. Tabla de Préstamos (El registro histórico)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Prestamos (
             id_prestamo INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -164,6 +167,7 @@ def guardar_libro():
     except Exception as e:
         conexion.close()
         return render_template('nuevo_libro.html', error=f"Ocurrió un error: {str(e)}")
+
 # --- RUTAS DE SEGURIDAD ---
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -265,6 +269,7 @@ def actualizar_libro(nro_inventario):
     conexion.close()
 
     return redirect('/')
+
 @app.route('/socios')
 def lista_socios():
     conexion = sqlite3.connect("biblioteca.db")
@@ -285,14 +290,6 @@ def guardar_socio():
     conexion.commit()
     conexion.close()
     return redirect('/socios')
-from datetime import date # Asegurate de que esta línea esté arriba de todo con los otros imports
-
-def formatear_titulo(texto):
-    if not texto: return ""
-    partes = texto.strip().split('. ')
-    partes_corregidas = [parte.capitalize() for parte in partes]
-    return '. '.join(partes_corregidas)
-
 
 @app.route('/prestar/<int:nro_inventario>')
 def formulario_prestamo(nro_inventario):
@@ -346,6 +343,7 @@ def devolver_libro(nro_inventario):
     
     # Volvemos a recargar la pantalla principal
     return redirect('/')
+
 @app.route('/editar_socio/<int:id_socio>')
 def vista_editar_socio(id_socio):
     conexion = sqlite3.connect("biblioteca.db")
@@ -366,7 +364,7 @@ def actualizar_socio():
     cursor.execute("UPDATE Socios SET nombre_completo = ?, telefono = ? WHERE id_socio = ?", (nom, tel, id_s))
     conexion.commit()
     conexion.close()
-    return redirect('/socios') # Nos manda de vuelta a la lista de socios
+    return redirect('/socios')
 
 @app.route('/historial_socio/<int:id_socio>')
 def historial_socio(id_socio):
@@ -378,7 +376,6 @@ def historial_socio(id_socio):
     nombre_socio = cursor.fetchone()[0]
     
     # 2. Buscamos su historial (Libros prestados y devueltos)
-    # Unimos Prestamos con Obras para tener el título y autor
     cursor.execute('''
         SELECT o.titulo, o.autor, p.fecha_prestamo, p.fecha_devolucion, p.nro_inventario
         FROM Prestamos p
@@ -421,6 +418,97 @@ def historial_libro(nro_inv):
     historial = cursor.fetchall()
     conexion.close()
     return render_template('historial_libro.html', titulo=titulo, historial=historial, nro_inv=nro_inv)
+
+
+# ==========================================
+# --- NUEVAS RUTAS DE EXPORTACIÓN A EXCEL ---
+# ==========================================
+
+@app.route('/exportar_libros')
+def exportar_libros():
+    conexion = sqlite3.connect('biblioteca.db')
+    cursor = conexion.cursor()
+    cursor.execute('''
+        SELECT e.nro_inventario, o.mfn, o.titulo, o.autor, o.editorial, o.anio, e.signatura_topografica, e.observaciones 
+        FROM Ejemplares e 
+        JOIN Obras o ON e.mfn_vinculado = o.mfn
+    ''')
+    
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Catálogo"
+    
+    # Encabezados
+    ws.append(['Nro_Inventario', 'MFN', 'Título', 'Autor', 'Editorial', 'Año', 'Signatura', 'Observaciones'])
+    
+    for row in cursor.fetchall():
+        ws.append(row)
+        
+    conexion.close()
+
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+
+    return Response(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
+                    headers={"Content-disposition": "attachment; filename=catalogo_cacho_el_kadri.xlsx"})
+
+@app.route('/exportar_socios')
+def exportar_socios():
+    conexion = sqlite3.connect('biblioteca.db')
+    cursor = conexion.cursor()
+    cursor.execute("SELECT id_socio, nombre_completo, telefono FROM Socios")
+    
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Socios"
+    
+    ws.append(['ID_Socio', 'Nombre_Completo', 'Teléfono'])
+    
+    for row in cursor.fetchall():
+        ws.append(row)
+        
+    conexion.close()
+
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+
+    return Response(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
+                    headers={"Content-disposition": "attachment; filename=socios_flores_solidario.xlsx"})
+
+@app.route('/exportar_prestamos')
+def exportar_prestamos():
+    conexion = sqlite3.connect('biblioteca.db')
+    cursor = conexion.cursor()
+    cursor.execute('''
+        SELECT p.id_prestamo, e.nro_inventario, o.titulo, s.nombre_completo, p.fecha_prestamo, p.fecha_devolucion
+        FROM Prestamos p
+        JOIN Socios s ON p.id_socio = s.id_socio
+        JOIN Ejemplares e ON p.nro_inventario = e.nro_inventario
+        JOIN Obras o ON e.mfn_vinculado = o.mfn
+    ''')
+    
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Préstamos"
+    
+    ws.append(['ID_Préstamo', 'Nro_Inventario', 'Título_Libro', 'Socio', 'Fecha_Préstamo', 'Fecha_Devolución'])
+    
+    for row in cursor.fetchall():
+        ws.append(row)
+        
+    conexion.close()
+
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+
+    return Response(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
+                    headers={"Content-disposition": "attachment; filename=historial_prestamos.xlsx"})
+
+# ==========================================
+
 
 if __name__ == '__main__':
     # El host '0.0.0.0' le dice a Flask que escuche a cualquier dispositivo de tu red

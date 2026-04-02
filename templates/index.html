@@ -33,9 +33,38 @@
         
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 gap-2">
             <h5 class="card-title mb-0">Catálogo Principal</h5>
-            <a href="/nuevo" class="btn btn-success">
-                <i class="bi bi-plus-circle me-1"></i> Agregar Nuevo Libro
-            </a>
+            <div class="d-flex flex-column flex-md-row gap-2">
+                
+                <!-- NUEVO: Menú Desplegable de Exportación -->
+                <div class="dropdown">
+                    <button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-weight: bold; border-radius: 8px;">
+                        <i class="bi bi-download me-1"></i> Exportar Datos
+                    </button>
+                    <ul class="dropdown-menu shadow border-0" style="border-radius: 8px;">
+                        <li>
+                            <a class="dropdown-item py-2" href="/exportar_libros" style="color: #094672; font-weight: 500;">
+                                <i class="bi bi-book me-2"></i> Excel del Catálogo
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item py-2" href="/exportar_prestamos" style="color: #856404; font-weight: 500;">
+                                <i class="bi bi-clock-history me-2"></i> Excel de Préstamos
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item py-2" href="/exportar_socios" style="color: #094672; font-weight: 500;">
+                                <i class="bi bi-people me-2"></i> Excel de Socios
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Agregar Nuevo Libro -->
+                <a href="/nuevo" class="btn btn-success d-flex align-items-center justify-content-center">
+                    <i class="bi bi-plus-circle me-1"></i> Nuevo Libro
+                </a>
+            </div>
         </div>
         
         <div class="table-responsive">
